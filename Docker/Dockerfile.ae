@@ -1,0 +1,46 @@
+FROM ubuntu:20.04
+
+ARG UID=1000
+ARG GID=1000
+ARG VHLS_PATH=/opt/Xilinx  # 建议将外部工具挂载到 /opt
+ARG VHLS_VER=2023.2
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
+ENV PATH="/usr/local/bin:${PATH}:/home/devuser/.local/bin"
+
+RUN apt-get update && apt-get install -y \
+    apt-utils tzdata ca-certificates \
+    clang lld libssl-dev pkg-config g++ \
+    llvm gcc ninja-build build-essential autoconf libtool \
+    git vim wget sudo python3 python3-pip python3.8-venv \
+    locales-all libncurses5 libtinfo5 \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install --no-cache-dir cmake==3.20.3
+
+RUN groupadd -g $GID devuser || true && \
+    useradd -u $UID -g $GID -m -s /bin/bash devuser && \
+    echo "devuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+RUN pip3 install --no-cache-dir pybind11==2.11.1 pybind11-global==2.11.1 \
+    && pip3 install --no-cache-dir \
+        torch torchvision numpy pandas matplotlib pyyaml onnx \
+    && rm -rf /root/.cache/pip
+
+USER devuser
+WORKDIR /home/devuser/workspace
+
+RUN printf "\
+\n# Library Path \
+\nexport LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:\$LIBRARY_PATH \
+\n# Vitis HLS setup \
+\nif [ -d \"${VHLS_PATH}/Vitis_HLS/${VHLS_VER}\" ]; then \
+\n    source ${VHLS_PATH}/Vitis/${VHLS_VER}/settings64.sh > /dev/null 2>&1 \
+\n    source ${VHLS_PATH}/Vitis_HLS/${VHLS_VER}/settings64.sh > /dev/null 2>&1 \
+\nfi \
+\n# Project Executable Paths  \
+\nexport PATH=\$PATH:./build/bin:./third-party/torch-mlir/build/bin \
+\n" >> ~/.bashrc
+
+CMD ["/bin/bash"]

@@ -1,0 +1,199 @@
+
+
+================================================================
+== Vitis HLS Report for 'main_graph'
+================================================================
+* Date:           Thu Jul 17 19:25:07 2025
+
+* Version:        2023.2 (Build 4023990 on Oct 11 2023)
+* Project:        gemm.prj
+* Solution:       gemm (Vivado IP Flow Target)
+* Product family: virtexuplusHBM
+* Target device:  xcu280-fsvh2892-2L-e
+
+
+================================================================
+== Performance Estimates
+================================================================
++ Timing: 
+    * Summary: 
+    +--------+---------+----------+------------+
+    |  Clock |  Target | Estimated| Uncertainty|
+    +--------+---------+----------+------------+
+    |ap_clk  |  5.00 ns|  3.570 ns|     1.35 ns|
+    +--------+---------+----------+------------+
+
++ Latency: 
+    * Summary: 
+    +----------+----------+-----------+-----------+----------+----------+---------+
+    |   Latency (cycles)  |   Latency (absolute)  |       Interval      | Pipeline|
+    |    min   |    max   |    min    |    max    |    min   |    max   |   Type  |
+    +----------+----------+-----------+-----------+----------+----------+---------+
+    |  42328034|  42328034|  0.212 sec|  0.212 sec|  42328035|  42328035|       no|
+    +----------+----------+-----------+-----------+----------+----------+---------+
+
+    + Detail: 
+        * Instance: 
+        +-------------------------------------------------------------------------------+---------------------------------------------------------------------+----------+----------+-----------+-----------+----------+----------+---------+
+        |                                                                               |                                                                     |   Latency (cycles)  |   Latency (absolute)  |       Interval      | Pipeline|
+        |                                    Instance                                   |                                Module                               |    min   |    max   |    min    |    max    |    min   |    max   |   Type  |
+        +-------------------------------------------------------------------------------+---------------------------------------------------------------------+----------+----------+-----------+-----------+----------+----------+---------+
+        |grp_main_graph_Pipeline_VITIS_LOOP_34_1_VITIS_LOOP_35_2_fu_48                  |main_graph_Pipeline_VITIS_LOOP_34_1_VITIS_LOOP_35_2                  |     44004|     44004|   0.220 ms|   0.220 ms|     44004|     44004|       no|
+        |grp_main_graph_Pipeline_VITIS_LOOP_39_3_VITIS_LOOP_40_4_VITIS_LOOP_41_5_fu_54  |main_graph_Pipeline_VITIS_LOOP_39_3_VITIS_LOOP_40_4_VITIS_LOOP_41_5  |  42240011|  42240011|  0.211 sec|  0.211 sec|  42240011|  42240011|       no|
+        |grp_main_graph_Pipeline_VITIS_LOOP_51_6_VITIS_LOOP_52_7_fu_63                  |main_graph_Pipeline_VITIS_LOOP_51_6_VITIS_LOOP_52_7                  |     44014|     44014|   0.220 ms|   0.220 ms|     44014|     44014|       no|
+        +-------------------------------------------------------------------------------+---------------------------------------------------------------------+----------+----------+-----------+-----------+----------+----------+---------+
+
+        * Loop: 
+        N/A
+
+
+
+================================================================
+== Utilization Estimates
+================================================================
+* Summary: 
++---------------------+---------+------+---------+---------+-----+
+|         Name        | BRAM_18K|  DSP |    FF   |   LUT   | URAM|
++---------------------+---------+------+---------+---------+-----+
+|DSP                  |        -|     -|        -|        -|    -|
+|Expression           |        -|     -|        -|        -|    -|
+|FIFO                 |        -|     -|        -|        -|    -|
+|Instance             |        0|    12|     1323|     1375|    0|
+|Memory               |       86|     -|        0|        0|    -|
+|Multiplexer          |        -|     -|        -|      189|    -|
+|Register             |        -|     -|        9|        -|    -|
++---------------------+---------+------+---------+---------+-----+
+|Total                |       86|    12|     1332|     1564|    0|
++---------------------+---------+------+---------+---------+-----+
+|Available SLR        |     1344|  3008|   869120|   434560|  320|
++---------------------+---------+------+---------+---------+-----+
+|Utilization SLR (%)  |        6|    ~0|       ~0|       ~0|    0|
++---------------------+---------+------+---------+---------+-----+
+|Available            |     4032|  9024|  2607360|  1303680|  960|
++---------------------+---------+------+---------+---------+-----+
+|Utilization (%)      |        2|    ~0|       ~0|       ~0|    0|
++---------------------+---------+------+---------+---------+-----+
+
++ Detail: 
+    * Instance: 
+    +-------------------------------------------------------------------------------+---------------------------------------------------------------------+---------+----+-----+-----+-----+
+    |                                    Instance                                   |                                Module                               | BRAM_18K| DSP|  FF | LUT | URAM|
+    +-------------------------------------------------------------------------------+---------------------------------------------------------------------+---------+----+-----+-----+-----+
+    |ctrl_s_axi_U                                                                   |ctrl_s_axi                                                           |        0|   0|   36|   40|    0|
+    |fadd_32ns_32ns_32_5_full_dsp_1_U14                                             |fadd_32ns_32ns_32_5_full_dsp_1                                       |        0|   2|  205|  220|    0|
+    |fmul_32ns_32ns_32_4_max_dsp_1_U15                                              |fmul_32ns_32ns_32_4_max_dsp_1                                        |        0|   3|  143|   78|    0|
+    |grp_main_graph_Pipeline_VITIS_LOOP_34_1_VITIS_LOOP_35_2_fu_48                  |main_graph_Pipeline_VITIS_LOOP_34_1_VITIS_LOOP_35_2                  |        0|   1|   55|  181|    0|
+    |grp_main_graph_Pipeline_VITIS_LOOP_39_3_VITIS_LOOP_40_4_VITIS_LOOP_41_5_fu_54  |main_graph_Pipeline_VITIS_LOOP_39_3_VITIS_LOOP_40_4_VITIS_LOOP_41_5  |        0|   2|  490|  556|    0|
+    |grp_main_graph_Pipeline_VITIS_LOOP_51_6_VITIS_LOOP_52_7_fu_63                  |main_graph_Pipeline_VITIS_LOOP_51_6_VITIS_LOOP_52_7                  |        0|   4|  394|  300|    0|
+    +-------------------------------------------------------------------------------+---------------------------------------------------------------------+---------+----+-----+-----+-----+
+    |Total                                                                          |                                                                     |        0|  12| 1323| 1375|    0|
+    +-------------------------------------------------------------------------------+---------------------------------------------------------------------+---------+----+-----+-----+-----+
+
+    * DSP: 
+    N/A
+
+    * Memory: 
+    +-------+----------------------+---------+---+----+-----+-------+-----+------+-------------+
+    | Memory|        Module        | BRAM_18K| FF| LUT| URAM| Words | Bits| Banks| W*Bits*Banks|
+    +-------+----------------------+---------+---+----+-----+-------+-----+------+-------------+
+    |v4_U   |v4_RAM_T2P_BRAM_1R1W  |       86|  0|   0|    0|  44000|   32|     1|      1408000|
+    +-------+----------------------+---------+---+----+-----+-------+-----+------+-------------+
+    |Total  |                      |       86|  0|   0|    0|  44000|   32|     1|      1408000|
+    +-------+----------------------+---------+---+----+-----+-------+-----+------+-------------+
+
+    * FIFO: 
+    N/A
+
+    * Expression: 
+    N/A
+
+    * Multiplexer: 
+    +--------------+----+-----------+-----+-----------+
+    |     Name     | LUT| Input Size| Bits| Total Bits|
+    +--------------+----+-----------+-----+-----------+
+    |ap_NS_fsm     |  37|          7|    1|          7|
+    |grp_fu_72_ce  |  14|          3|    1|          3|
+    |grp_fu_72_p0  |  14|          3|   32|         96|
+    |grp_fu_72_p1  |  14|          3|   32|         96|
+    |grp_fu_76_ce  |  14|          3|    1|          3|
+    |grp_fu_76_p0  |  14|          3|   32|         96|
+    |grp_fu_76_p1  |  14|          3|   32|         96|
+    |v4_address0   |  20|          4|   16|         64|
+    |v4_ce0        |  20|          4|    1|          4|
+    |v4_d0         |  14|          3|   32|         96|
+    |v4_we0        |  14|          3|    1|          3|
+    +--------------+----+-----------+-----+-----------+
+    |Total         | 189|         39|  181|        564|
+    +--------------+----+-----------+-----+-----------+
+
+    * Register: 
+    +--------------------------------------------------------------------------------------------+---+----+-----+-----------+
+    |                                            Name                                            | FF| LUT| Bits| Const Bits|
+    +--------------------------------------------------------------------------------------------+---+----+-----+-----------+
+    |ap_CS_fsm                                                                                   |  6|   0|    6|          0|
+    |grp_main_graph_Pipeline_VITIS_LOOP_34_1_VITIS_LOOP_35_2_fu_48_ap_start_reg                  |  1|   0|    1|          0|
+    |grp_main_graph_Pipeline_VITIS_LOOP_39_3_VITIS_LOOP_40_4_VITIS_LOOP_41_5_fu_54_ap_start_reg  |  1|   0|    1|          0|
+    |grp_main_graph_Pipeline_VITIS_LOOP_51_6_VITIS_LOOP_52_7_fu_63_ap_start_reg                  |  1|   0|    1|          0|
+    +--------------------------------------------------------------------------------------------+---+----+-----+-----------+
+    |Total                                                                                       |  9|   0|    9|          0|
+    +--------------------------------------------------------------------------------------------+---+----+-----+-----------+
+
+
+
+================================================================
+== Interface
+================================================================
+* Summary: 
++--------------------+-----+-----+------------+--------------+--------------+
+|      RTL Ports     | Dir | Bits|  Protocol  | Source Object|    C Type    |
++--------------------+-----+-----+------------+--------------+--------------+
+|s_axi_ctrl_AWVALID  |   in|    1|       s_axi|          ctrl|   return void|
+|s_axi_ctrl_AWREADY  |  out|    1|       s_axi|          ctrl|   return void|
+|s_axi_ctrl_AWADDR   |   in|    4|       s_axi|          ctrl|   return void|
+|s_axi_ctrl_WVALID   |   in|    1|       s_axi|          ctrl|   return void|
+|s_axi_ctrl_WREADY   |  out|    1|       s_axi|          ctrl|   return void|
+|s_axi_ctrl_WDATA    |   in|   32|       s_axi|          ctrl|   return void|
+|s_axi_ctrl_WSTRB    |   in|    4|       s_axi|          ctrl|   return void|
+|s_axi_ctrl_ARVALID  |   in|    1|       s_axi|          ctrl|   return void|
+|s_axi_ctrl_ARREADY  |  out|    1|       s_axi|          ctrl|   return void|
+|s_axi_ctrl_ARADDR   |   in|    4|       s_axi|          ctrl|   return void|
+|s_axi_ctrl_RVALID   |  out|    1|       s_axi|          ctrl|   return void|
+|s_axi_ctrl_RREADY   |   in|    1|       s_axi|          ctrl|   return void|
+|s_axi_ctrl_RDATA    |  out|   32|       s_axi|          ctrl|   return void|
+|s_axi_ctrl_RRESP    |  out|    2|       s_axi|          ctrl|   return void|
+|s_axi_ctrl_BVALID   |  out|    1|       s_axi|          ctrl|   return void|
+|s_axi_ctrl_BREADY   |   in|    1|       s_axi|          ctrl|   return void|
+|s_axi_ctrl_BRESP    |  out|    2|       s_axi|          ctrl|   return void|
+|ap_clk              |   in|    1|  ap_ctrl_hs|    main_graph|  return value|
+|ap_rst_n            |   in|    1|  ap_ctrl_hs|    main_graph|  return value|
+|interrupt           |  out|    1|  ap_ctrl_hs|    main_graph|  return value|
+|v23_Addr_A          |  out|   32|        bram|           v23|         array|
+|v23_EN_A            |  out|    1|        bram|           v23|         array|
+|v23_WEN_A           |  out|    4|        bram|           v23|         array|
+|v23_Din_A           |  out|   32|        bram|           v23|         array|
+|v23_Dout_A          |   in|   32|        bram|           v23|         array|
+|v23_Clk_A           |  out|    1|        bram|           v23|         array|
+|v23_Rst_A           |  out|    1|        bram|           v23|         array|
+|v24_Addr_A          |  out|   32|        bram|           v24|         array|
+|v24_EN_A            |  out|    1|        bram|           v24|         array|
+|v24_WEN_A           |  out|    4|        bram|           v24|         array|
+|v24_Din_A           |  out|   32|        bram|           v24|         array|
+|v24_Dout_A          |   in|   32|        bram|           v24|         array|
+|v24_Clk_A           |  out|    1|        bram|           v24|         array|
+|v24_Rst_A           |  out|    1|        bram|           v24|         array|
+|v25_Addr_A          |  out|   32|        bram|           v25|         array|
+|v25_EN_A            |  out|    1|        bram|           v25|         array|
+|v25_WEN_A           |  out|    4|        bram|           v25|         array|
+|v25_Din_A           |  out|   32|        bram|           v25|         array|
+|v25_Dout_A          |   in|   32|        bram|           v25|         array|
+|v25_Clk_A           |  out|    1|        bram|           v25|         array|
+|v25_Rst_A           |  out|    1|        bram|           v25|         array|
+|v26_Addr_A          |  out|   32|        bram|           v26|         array|
+|v26_EN_A            |  out|    1|        bram|           v26|         array|
+|v26_WEN_A           |  out|    4|        bram|           v26|         array|
+|v26_Din_A           |  out|   32|        bram|           v26|         array|
+|v26_Dout_A          |   in|   32|        bram|           v26|         array|
+|v26_Clk_A           |  out|    1|        bram|           v26|         array|
+|v26_Rst_A           |  out|    1|        bram|           v26|         array|
++--------------------+-----+-----+------------+--------------+--------------+
+

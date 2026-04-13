@@ -1,0 +1,11 @@
+build
+.env
+**/hls_proj
+**/__pycache__
+**/*.prj/
+**/*.csv
+*.mlir
+imp/
+syn/
+*.xclbin
+*.exe
