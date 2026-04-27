@@ -1,5 +1,14 @@
+# CODO: An Automated Compiler for Comprehensive Dataflow Optimization
 
-# CODO (Artifact Evaluation)
+<p align="center">
+  <img src="framework.png" alt="CODO framework overview" width="50%">
+</p>
+
+CODO is an automated compiler for building efficient FPGA dataflow accelerators from high-level programs. It addresses the key challenges in large-scale dataflow design for HLS, including preserving correct streaming behavior, improving data movement efficiency, and balancing parallelism under resource constraints. Built on MLIR, CODO systematically detects and eliminates both coarse-grained and fine-grained dataflow violations, optimizes on-chip and off-chip communication, and uses design space exploration to improve performance while reducing resource consumption. 
+
+CODO was accepted to ISCA 2026 and selected as an **ISCA 2026 Best Paper Award Finalist**.
+
+This repository contains the artifact evaluation package for the CODO paper.
 
 ## 1. Clone the Repository
 
@@ -10,7 +19,7 @@ git submodule update --init --recursive --progress
 
 # Alternative:
 # git submodule update --init --recursive
-````
+```
 
 ---
 
@@ -216,3 +225,20 @@ To perform synthesis or on-board validation using the optimized code, please ref
 
 ---
 
+## Citation
+
+```bibtex
+@misc{zhang2026codoautomatedcompilercomprehensive,
+      title={CODO: An Automated Compiler for Comprehensive Dataflow Optimization}, 
+      author={Weichuang Zhang and Yiquan Wang and Xinzhou Zhang and Chi Zhang and Yu Feng and Xiaofeng Hou and Chao Li and Jieru Zhao and Minyi Guo},
+      year={2026},
+      eprint={2604.12618},
+      archivePrefix={arXiv},
+      primaryClass={cs.AR},
+      url={https://arxiv.org/abs/2604.12618}, 
+}
+```
+
+## Acknowledgements
+
+Some parts of CODO were modified, extended, and/or borrowed from [HIDA](https://github.com/UIUC-ChenLab/ScaleHLS-HIDA), [Allo](https://github.com/cornell-zhang/allo), and [StreamHLS](https://github.com/UCLA-VAST/Stream-HLS).
