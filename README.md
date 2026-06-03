@@ -228,7 +228,7 @@ To perform synthesis or on-board validation using the optimized code, please ref
 ## Citation
 
 ```bibtex
-@misc{zhang2026codoautomatedcompilercomprehensive,
+@misc{zhang2026codo,
       title={CODO: An Automated Compiler for Comprehensive Dataflow Optimization}, 
       author={Weichuang Zhang and Yiquan Wang and Xinzhou Zhang and Chi Zhang and Yu Feng and Xiaofeng Hou and Chao Li and Jieru Zhao and Minyi Guo},
       year={2026},
