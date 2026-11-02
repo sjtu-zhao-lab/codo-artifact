@@ -23,7 +23,6 @@ void main_graph_node36(
   int8_t v1[1][32][1024],
   int8_t v2[1][32][1024]
 ) {	// L10
-  #pragma HLS dataflow
   for (int v3 = 0; v3 < 1; v3 += 1) {	// L11
     for (int v4 = 0; v4 < 4; v4 += 1) {	// L12
       for (int v5 = 0; v5 < 64; v5 += 1) {	// L13
@@ -2302,24 +2301,10 @@ ap_uint<256> temp_23;
               temp_0 = vv834[i * 1 * 32 + j * 32 + k];
               for (int bias = 0; bias < 32; ++bias) { 
                   v834[i][j][k * 32 + bias] = temp_0.range(bias*8+7, bias*8);
-              }
-          }
-      }
-    }
-    
-    hls::stream<ap_uint<bits>> channel ;
-    for (int i = 0; i < NumBits/Bandwidth; ++i) {
-      temp_0 = ... ;
-      #pragma HLS pipeline
-      for (int paral = 0; paral < Bandwidth/OriBits; ++paral) { 
-        
-        temp_1 = temp_0.range(..., ...);
-        ...
-      }
-      channel.write(...);
-    }
-
-
+}
+}
+}
+}
     for (int i = 0; i < 128; ++i) {
       for (int j = 0; j < 128; ++j) {
           temp_1 = vv835_1[i * 128 + j];
@@ -2343,10 +2328,7 @@ ap_uint<256> temp_23;
 // }
 // }
     for (int i = 0; i < 32; ++i) { 
-      
-      for (0-2)
       temp_3 = vv836[i];
-      temp_4 = vv837[i];
       for (int bias = 0; bias < 32; ++bias) { 
                     v836[i * 32 + bias] = temp_3.range(bias*8+3, bias*8);
 }
@@ -2576,9 +2558,8 @@ ap_uint<256> temp_23;
 /// This is top function.
 void main_graph(
     ap_uint<256> *vv834,
-    ap_uint<256> *vv835,
-    ap_uint<256> *vv836_1,
-    ap_uint<256> *vv837_2,
+    ap_uint<256> *vv835_1,
+    ap_uint<256> *vv835_2,
     ap_uint<256> *vv836,
     ap_uint<256> *vv837,
     ap_uint<256> *vv838,

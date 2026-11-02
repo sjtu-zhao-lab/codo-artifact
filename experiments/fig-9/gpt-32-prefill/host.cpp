@@ -296,7 +296,6 @@ OCL_CHECK(err, cl::Buffer v847_buf(context, CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_H
 
 // Set kernel arguments
     OCL_CHECK(err, err = kernel.setArg(0, v834_buf));
-    OCL_CHECK(err, err = kernel.setArg(1, v834_buf));
     OCL_CHECK(err, err = kernel.setArg(1, v835_1_buf));
     OCL_CHECK(err, err = kernel.setArg(2, v835_2_buf));
     OCL_CHECK(err, err = kernel.setArg(3, v836_buf));
