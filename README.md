@@ -221,7 +221,282 @@ then the correctness verification has passed successfully.
 
 ## 6. Synthesis and On-Board Validation
 
-To perform synthesis or on-board validation using the optimized code, please refer to the contents in the `experiments` directory.
+This section uses **GPT-32 Prefill** as a concrete example and shows how to
+compile the released HLS kernel, link an Alveo U280 `xclbin`, build the host
+program, and run one kernel invocation on the FPGA.
+
+> **Scope of this example**
+>
+> The released `experiments/fig-9/gpt-32-prefill` host is a kernel-level
+> performance harness. It allocates zero-initialized input and weight buffers,
+> invokes `main_graph` once, and reports the OpenCL event time. It does **not**
+> load a GPT-2 checkpoint, execute all 24 GPT-2 Medium layers, maintain a KV
+> cache, generate tokens, copy an output tensor back to the host, or compare
+> results against a numerical reference. Therefore, this procedure validates
+> that the released kernel can be built, programmed, and executed; it is not an
+> end-to-end GPT-2 inference or correctness-validation workflow.
+
+### 6.1 Hardware and Software Requirements
+
+The example was prepared for the following environment:
+
+- AMD Alveo U280 (`xcu280-fsvh2892-2L-e`)
+- Vitis/Vivado/Vitis HLS 2023.2
+- XRT installed on the machine connected to the FPGA
+- U280 platform `xilinx_u280_gen3x16_xdma_1_202211_1`
+- A compatible U280 shell installed on the card
+- GNU Make and a C++14 compiler
+
+Hardware linking can take several hours and requires substantial memory and
+disk space. The commands below should be run on a machine where Vitis, XRT,
+and the U280 platform are installed. The Docker environment described above is
+intended primarily for the compiler and HLS workflows; on-board execution also
+requires access to the host's XRT installation and PCIe device.
+
+Set up the toolchain. Adjust the installation paths for your machine:
+
+```sh
+source /path/to/Xilinx/Vitis/2023.2/settings64.sh
+source /opt/xilinx/xrt/setup.sh
+
+export PLATFORM=xilinx_u280_gen3x16_xdma_1_202211_1
+export PLATFORM_REPO_PATHS=/opt/xilinx/platforms${PLATFORM_REPO_PATHS:+:$PLATFORM_REPO_PATHS}
+```
+
+Confirm that Vitis can find the platform and that XRT can see the card:
+
+```sh
+platforminfo --platform "$PLATFORM"
+xbutil examine
+xbutil examine --report platform
+```
+
+The platform reported by `xbutil examine --report platform` must be compatible
+with `xilinx_u280_gen3x16_xdma_1_202211_1`. If it is not, install the matching
+platform and shell before building or programming the device.
+
+### 6.2 GPT-32 Prefill Sources
+
+Starting from the repository root:
+
+```sh
+cd experiments/fig-9/gpt-32-prefill
+```
+
+The example consists of:
+
+- `gpt-32_16x16.cpp`: HLS kernel source; the top function is `main_graph`.
+- `host.cpp`: OpenCL host program that allocates buffers and launches the
+  kernel once.
+- `connectivity.cfg`: maps the 24 kernel memory interfaces to U280 HBM banks
+  0 through 23.
+- `Makefile`: builds `kernel.hw.xo`, `kernel.hw.xclbin`, and `host.exe`.
+- `report/main_graph_csynth.rpt`: the released reference HLS synthesis report.
+
+The host uses the standard Xilinx `xcl2` helper from the
+[Vitis Acceleration Examples](https://github.com/Xilinx/Vitis_Accel_Examples/tree/2023.2/common/includes/xcl2).
+Download the Vitis 2023.2 version into the shared Fig. 9 directory before
+building the host:
+
+```sh
+mkdir -p ../xcl2
+wget -O ../xcl2/xcl2.hpp \
+  https://raw.githubusercontent.com/Xilinx/Vitis_Accel_Examples/2023.2/common/includes/xcl2/xcl2.hpp
+wget -O ../xcl2/xcl2.cpp \
+  https://raw.githubusercontent.com/Xilinx/Vitis_Accel_Examples/2023.2/common/includes/xcl2/xcl2.cpp
+```
+
+The resulting layout is:
+
+```text
+experiments/fig-9/xcl2/xcl2.hpp
+experiments/fig-9/xcl2/xcl2.cpp
+```
+
+### 6.3 Compile the Kernel to an XO File
+
+The compile stage runs HLS for `main_graph` and packages the resulting RTL as
+`kernel.hw.xo`:
+
+```sh
+v++ \
+  -s \
+  -t hw \
+  --platform "$PLATFORM" \
+  --temp_dir ./all_builds/hw \
+  --report_dir ./all_logs/hw \
+  --log_dir ./all_logs/hw \
+  -c \
+  -k main_graph \
+  -I. \
+  -o kernel.hw.xo \
+  gpt-32_16x16.cpp
+```
+
+Equivalent Make target:
+
+```sh
+make kernel.hw.xo
+```
+
+Check the generated synthesis reports before continuing:
+
+```sh
+find all_logs all_builds \( \
+  -name '*csynth.rpt' -o \
+  -name '*compile_summary*' \
+\)
+```
+
+The checked-in `report/main_graph_csynth.rpt` is a reference report from the
+artifact build. Newly generated reports are placed under `all_logs/` and
+`all_builds/`.
+
+### 6.4 Link the XO into a U280 XCLBIN
+
+The link stage performs Vivado synthesis, placement, routing, and xclbin
+packaging. `connectivity.cfg` assigns `main_graph` arguments `vv834` through
+`vv847` to HBM banks 0 through 23.
+
+```sh
+v++ \
+  -s \
+  -t hw \
+  --platform "$PLATFORM" \
+  --temp_dir ./all_builds/hw \
+  --report_dir ./all_logs/hw \
+  --log_dir ./all_logs/hw \
+  -l \
+  --config connectivity.cfg \
+  --profile.data all:all:all \
+  -o kernel.hw.xclbin \
+  kernel.hw.xo
+```
+
+Equivalent Make target:
+
+```sh
+make kernel.hw.xclbin
+```
+
+Inspect the packaged kernel signature, HBM mapping, target platform, requested
+clock, and achieved implementation clock:
+
+```sh
+xclbinutil --info --input kernel.hw.xclbin | tee xclbin-info.txt
+```
+
+The kernel signature should contain exactly 24 pointer arguments, in this
+order:
+
+```text
+vv834, vv835_1, vv835_2, vv836, vv837, vv838, vv839, vv840,
+vv841, vv842_1, vv842_2, vv843_1, vv843_2, vv844_1, vv844_2,
+vv845_1, vv845_2, vv845_3, vv845_4, vv846_1, vv846_2,
+vv846_3, vv846_4, vv847
+```
+
+### 6.5 Build the Host Program
+
+From `experiments/fig-9/gpt-32-prefill`, compile the host against XRT and the
+Xilinx HLS headers:
+
+```sh
+g++ \
+  -g \
+  -std=c++14 \
+  -I"$XILINX_XRT/include" \
+  -I"$XILINX_VIVADO/include" \
+  -I"$XILINX_HLS/include" \
+  -I../xcl2 \
+  host.cpp ../xcl2/xcl2.cpp \
+  -L"$XILINX_XRT/lib" \
+  -lOpenCL \
+  -lxrt_coreutil \
+  -lrt \
+  -luuid \
+  -pthread \
+  -o host.exe
+```
+
+The checked-in Makefile assumes that Vitis HLS is installed under
+`/home/tools/Vitis_2023.2`. If your installation uses that path and the `xcl2`
+helper is in place, the equivalent Make target is:
+
+```sh
+make host
+```
+
+The host creates one buffer for each kernel argument, places them in HBM banks
+0 through 23, migrates all buffers to the FPGA, and sets OpenCL kernel arguments
+0 through 23 in the same order as the xclbin metadata.
+
+### 6.6 Run on the U280
+
+Ensure hardware emulation is disabled and verify the device immediately before
+running:
+
+```sh
+unset XCL_EMULATION_MODE
+xbutil examine
+```
+
+Program the first compatible Xilinx accelerator found by the host and execute
+one `main_graph` invocation:
+
+```sh
+./host.exe ./kernel.hw.xclbin | tee gpt32-prefill-hw.log
+```
+
+A successful run contains messages similar to:
+
+```text
+Trying to program device[0]: ...
+Device[0]: program successful!
+| main_graph              |             <time-ns> |
+TEST PASSED
+```
+
+`TEST PASSED` in this host means that device programming, buffer migration, and
+the kernel launch completed without an OpenCL error. It does not indicate a
+numerical comparison against GPT-2 reference outputs.
+
+If multiple Xilinx accelerator cards are installed, note that this host scans
+the devices in XRT enumeration order and uses the first device that accepts the
+xclbin. Use `xbutil examine` to check the device order before running.
+
+### 6.7 Timing Boundary
+
+The reported value is obtained from `CL_PROFILING_COMMAND_START` and
+`CL_PROFILING_COMMAND_END` for the single `enqueueTask(main_graph)` event. It
+includes the execution of one `main_graph` kernel invocation and excludes:
+
+- xclbin loading and FPGA programming;
+- host buffer allocation;
+- host-to-device buffer migration;
+- device-to-host result migration; and
+- any multi-layer orchestration, KV-cache management, token sampling, or
+  autoregressive decoding.
+
+This on-board event time should not be confused with the latency estimate in
+`main_graph_csynth.rpt`. The synthesis report is an HLS estimate, while the host
+prints the duration measured by XRT on the physical device.
+
+### 6.8 Rebuild and Other Fig. 9 Configurations
+
+To remove generated products and rebuild from source:
+
+```sh
+make cleanall
+make kernel.hw.xo
+make kernel.hw.xclbin
+make host
+```
+
+The same compile, link, and run flow applies to the other directories under
+`experiments/fig-9`. Use the kernel source, connectivity file, and host program
+from the selected directory; do not mix files between configurations because
+their kernel signatures and HBM mappings differ.
 
 ---
 
