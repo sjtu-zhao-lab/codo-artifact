@@ -268,11 +268,15 @@ Confirm that Vitis can find the platform and that XRT can see the card:
 ```sh
 platforminfo --platform "$PLATFORM"
 xbutil examine
-xbutil examine --report platform
+
+# Replace this value with a BDF listed by `xbutil examine`.
+export DEVICE_BDF=0000:86:00.1
+xbutil examine --device "$DEVICE_BDF" --report platform
 ```
 
-The platform reported by `xbutil examine --report platform` must be compatible
-with `xilinx_u280_gen3x16_xdma_1_202211_1`. If it is not, install the matching
+The `--device` option is required when multiple accelerator cards are present.
+The platform reported for the selected device must be compatible with
+`xilinx_u280_gen3x16_xdma_1_202211_1`. If it is not, install the matching
 platform and shell before building or programming the device.
 
 ### 6.2 GPT-32 Prefill Sources
@@ -342,15 +346,15 @@ make kernel.hw.xo
 Check the generated synthesis reports before continuing:
 
 ```sh
-find all_logs all_builds \( \
+find . -type f \( \
   -name '*csynth.rpt' -o \
   -name '*compile_summary*' \
 \)
 ```
 
 The checked-in `report/main_graph_csynth.rpt` is a reference report from the
-artifact build. Newly generated reports are placed under `all_logs/` and
-`all_builds/`.
+artifact build. Vitis writes the top-level compile summary in the current
+directory and detailed reports under `all_logs/` and `all_builds/`.
 
 ### 6.4 Link the XO into a U280 XCLBIN
 
@@ -373,10 +377,16 @@ v++ \
   kernel.hw.xo
 ```
 
-Equivalent Make target:
+The profiling option may emit warnings about trace infrastructure crossing
+SLRs or the number of trace monitors. These warnings do not by themselves
+indicate that linking has failed. `--profile.data all:all:all` reproduces the
+profiling configuration used for the artifact build; it may be removed when
+data-transfer profiling is not required.
+
+Check the generated link summary:
 
 ```sh
-make kernel.hw.xclbin
+find . -type f -name '*link_summary*'
 ```
 
 Inspect the packaged kernel signature, HBM mapping, target platform, requested
@@ -489,9 +499,13 @@ To remove generated products and rebuild from source:
 ```sh
 make cleanall
 make kernel.hw.xo
-make kernel.hw.xclbin
 make host
 ```
+
+Run the explicit `v++ -l` command in Section 6.4 between `make kernel.hw.xo`
+and `make host` to generate `kernel.hw.xclbin`. The current Makefile link rule
+passes `kernel.hw.xo` twice and causes Vitis to report a duplicate-input
+warning; the explicit command in Section 6.4 supplies the XO exactly once.
 
 The same compile, link, and run flow applies to the other directories under
 `experiments/fig-9`. Use the kernel source, connectivity file, and host program
